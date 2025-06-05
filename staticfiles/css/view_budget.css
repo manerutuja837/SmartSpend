@@ -1,0 +1,114 @@
+body{
+    background-color: #1e004f;
+    color: rgba(245, 245, 245, 0.864);
+}
+
+.view_btn{
+    left: 27%;
+    padding: 5%;
+    border: none;
+}
+.view_btn:hover{
+    background-color: #8a2be23b;
+}
+
+#bar-chart, #left-to-spend-chart, #left-to-budget-chart {
+    width: 23% !important;
+    height: 52% !important;
+    top: 12%;
+    position: absolute;
+    left:26%
+  }
+#bar-chart{
+    float:left;
+
+}
+#left-to-spend-chart{
+    float:left;
+    left:51%;
+}
+#left-to-budget-chart{
+    float:right;
+    left:75%;
+}
+.card{
+    background-color: #3c0c7f75;
+    color: rgba(245, 245, 245, 0.873);
+    border-radius: 20px;
+    padding-top:0.5%;
+}
+
+#id_month{
+    background-color: #3c0c7f75;
+    border:none;
+    color: rgba(245, 245, 245, 0.869);
+    text-align: center;
+}
+input[type="month"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+form{
+    height: 20%;
+    width: 20%;
+    margin: 2%;
+}
+
+h2{
+    position: absolute;
+    top: 3.5%;
+    left: 45%;
+    text-align: center;
+}
+
+.income, .savings, .bills, .loans, .daily-expenses{
+    margin-top: 4%;
+    margin-left: 2%;
+    height: auto;
+    width: 21.5%;
+    color:rgba(245, 245, 245, 0.867);
+    padding-bottom: 1%;
+}
+.income{
+    top: 3%;
+}
+.daily-expenses{
+    margin: 0;
+    left: 27%;
+    position: absolute;
+    top: 68%;
+}
+.loans{
+    margin: 0;
+    position: absolute;
+    top: 68%;
+    left: 76%;
+}
+.bills{
+    margin: 0;
+    position: absolute;
+    top: 68%;
+    left: 51.5%;
+}
+table{
+    color:whitesmoke;
+    text-align:center;
+    border-radius: 5%;
+    padding:1%;
+}
+th, td{
+    padding:2%;
+}
+h4{
+    text-align:center;
+}
+thead tr{
+    background-color: #8a2be23b;
+    border-radius: 10px;
+}
+
+.edit_budget{
+    width: 21.5%;
+    margin: 2%;
+
+}
