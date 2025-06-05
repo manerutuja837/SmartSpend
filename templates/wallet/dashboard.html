@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<title>{{ user.username }}'s Wallet</title>
+
+<style>
+    /* General font size adjustments */
+    body {
+        font-size: 1rem; /* Base font size */
+    }
+    .lead {
+        font-size: 1rem; /* Larger lead text */
+    }
+
+    .table {
+        font-size: 1rem; /* Larger table text */
+    }
+
+    .btn {
+        font-size: 1em; /* Larger button text */
+    }
+
+    .popup-message {
+        font-size: 1.2rem; /* Larger popup text */
+    }
+
+    .popup-message h3 {
+        font-size: 2rem; /* Larger popup heading */
+    }
+
+    .popup-message button {
+        font-size: 1.2rem; /* Larger popup button text */
+    }
+
+    /* Rejected and Approved status styles */
+    .rejected {
+        background-color: #f8d7da; /* Light red background */
+        color: #721c24; /* Dark red text */
+    }
+
+    .approved {
+        background-color: #d4edda; /* Light green background */
+        color: #155724; /* Dark green text */
+    }
+
+    /* Popup success message */
+    .popup-message {
+        position: fixed;
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(250, 250, 250, 0.8);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        display: none; /* Hidden by default */
+        max-width: 90%; /* Ensure popup fits smaller screens */
+        width: 500px; /* Set a fixed width for larger screens */
+        text-align: center;
+    }
+
+    /* Overlay to darken the background when the popup is visible */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9;
+        display: none; /* Hidden by default */
+    }
+</style>
+
+{% include 'partials/_messages.html' %}
+<div class="container" style="margin-top:7%;">
+    <h4>{{ user.username }}'s Wallet</h4>
+    <p class="lead"><strong style="font-size:1rem">Current Balance:</strong><strong style="font-size:1rem">Rs {{ wallet.balance }}</strong></p>
+
+    <h3 class="mt-4">Transaction History</h3>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.transaction_type }}</td>
+                <td>Rs {{ transaction.amount }}</td>
+                <td>{{ transaction.timestamp|date:"F j, Y  H:i A" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No transactions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mb-4">
+        <a href="{% url 'add_funds' %}" class="btn btn-primary">Add Funds</a>
+        <a href="{% url 'withdraw_funds' %}" class="btn btn-warning">Request Withdrawal</a>
+    </div>
+
+    <h3 class="mt-4">Your Withdrawal Requests</h3>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Amount</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in user_requests %}
+            <tr class="{% if request.status == 'Rejected' %}table-danger{% elif request.status == 'Approved' %}table-success{% endif %}">                
+                <td>Rs {{ request.amount }}</td>
+                <td>{{ request.reason }}</td>
+                <td>{{ request.status }}</td>
+                <td>{{ request.timestamp|date:"F j, Y  H:i A" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No withdrawal requests found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Overlay for popup -->
+<div class="overlay"></div>
+
+<!-- Popup success message -->
+<div class="popup-message" role="alert" aria-live="assertive">
+    <h3>Funds added successfully!</h3>
+    <p>Your wallet has been credited with the amount.</p>
+    <button class="btn btn-success" onclick="closePopup()">Close</button>
+</div>
+
+<!-- Confetti script -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+    // Function to close the popup
+    function closePopup() {
+        document.querySelector('.popup-message').style.display = 'none';
+        document.querySelector('.overlay').style.display = 'none';
+    }
+
+    // Check for 'success' parameter in the URL
+    function getQueryParam(param) {
+        let params = new URLSearchParams(window.location.search);
+        return params.get(param);
+    }
+
+    if (getQueryParam('success') === 'true') {
+        // Show popup and overlay
+        document.querySelector('.popup-message').style.display = 'block';
+        document.querySelector('.overlay').style.display = 'block';
+
+        // Create full-screen canvas for confetti
+        var myCanvas = document.createElement('canvas');
+        myCanvas.style.position = 'fixed';
+        myCanvas.style.top = '0';
+        myCanvas.style.left = '0';
+        myCanvas.style.width = '100%';
+        myCanvas.style.height = '100%';
+        myCanvas.style.zIndex = '9999';  // Ensure the canvas is above everything
+        document.body.appendChild(myCanvas);
+
+        var myConfetti = confetti.create(myCanvas, {
+            resize: true,
+            useWorker: true
+        });
+
+        var end = Date.now() + (3 * 1000); // 7 seconds of confetti
+
+        var colors = ['#bb0000', '#ffffff'];
+
+        (function frame() {
+            myConfetti({
+                particleCount: 5,  // Increase for more confetti
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors
+            });
+            myConfetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            } else {
+                // Remove canvas after animation
+                myCanvas.remove();
+            }
+        }());
+
+        // Remove the 'success' parameter from the URL after showing the popup
+        if (window.history.replaceState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('success');
+            window.history.replaceState({}, document.title, url);
+        }
+    }
+</script>
+
+{% endblock %}

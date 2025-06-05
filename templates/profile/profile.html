@@ -1,0 +1,52 @@
+
+{% extends 'base.html' %}
+
+{% load form_tags %}
+{% comment %}  
+{% block content %}
+
+<title>Your Site Title</title>
+
+    <div class="container mt-5">
+        <h2 class="mb-4">User Profile</h2>
+        <form method="POST" enctype="multipart/form-data" class="mb-4">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_first_name">First Name</label>
+                {{ form.first_name|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_last_name">Last Name</label>
+                {{ form.last_name|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                {{ form.email|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_gender">Gender</label>
+                {{ form.gender|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_mobile_number">Mobile Number</label>
+                {{ form.mobile_number|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_date_of_birth">Date of Birth</label>
+                {{ form.date_of_birth|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_address">Address</label>
+                {{ form.address|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                <label for="id_photo">Profile Photo</label>
+                {{ form.photo|add_class:"form-control-file" }}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>  
+    </div>
+
+    {% endblock %} 
+
+     {% endcomment %}

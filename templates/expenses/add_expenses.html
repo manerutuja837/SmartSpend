@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb" style="
+        background-color: #dddddd;
+        padding-left:1%;
+        margin-top:7%; 
+        padding-top:0.5%;
+        padding: .75rem 1rem;">
+          <li class="breadcrumb-item"><a href="{% url 'expenses' %}" style="text-decoration:none; font-size: 1.2rem;">Expenses</a></li>
+          <li class="breadcrumb-item active" aria-current="page" style="font-size: 1rem;">Add Expenses</li>
+        </ol>
+      </nav>
+
+        <div class="card mt-3" >
+            <div class="card-body">
+                <form action="{% url 'add_expenses' %}" method="post">{% csrf_token %}
+                <div class="form-group">
+                    <label for="" style="font-size: 1rem;">Amount</label>
+                    <input type="number" class="form-control form-control-sm" name="amount" value="{{values.amount}}" style="font-size: 1.2rem;" />
+                </div><br>
+                <div class="form-group">
+                    <label for="" style="font-size: 1rem;">Description</label>
+                    <input type="text" class="form-control form-control-sm" name="description" value="{{values.description}}" style="font-size: 1.2rem;" />
+                </div><br>
+                <div class="form-group">
+                    <label for="" style="font-size: 1rem;">Category</label>
+                    <select name="category" class="form-control form-control-sm" value="{{values.category}}" style="font-size: 1rem;">
+                        {% for category in categories %}
+                        <option name="category" value="{{category.name}}">{{category.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div><br>
+                <div class="form-group">
+                    <label for="" style="font-size: 1 rem;">Payment Type</label>
+                    <input type="text" class="form-control form-control-sm" name="payment_type" value="{{values.payment_type}}" style="font-size: 1rem;" />
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="" style="font-size: 1rem;">Date of Expense</label>
+                    <input type="date" class="form-control form-control-sm" name="expense_date" style="font-size: 1rem;" />
+                </div><br>
+
+                <input type="submit" value="Save Expense" class="btn btn-primary btn-primary-sm" style="font-size: 1rem;" />
+
+            </form>
+            </div>
+        </div>
+
+
+</div>
+
+
+{% endblock %}

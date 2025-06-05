@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+        .profile-photo {
+            text-align: center; /* Center the photo */
+            margin-bottom: 20px;
+            font-size:20px /* Space below the photo */
+        }
+
+        .rounded-circle {
+            border-radius: 50%; /* Make the image circular */
+            /* border: 2px solid #007bff; /* Optional: Add a border around the image */ 
+        }
+
+        .account-details {
+            border: 1px solid #e0e0e0; /* Optional: Add a border to the details section */
+            padding: 15px;
+            border:none;
+            border-radius: 5px; /* Rounded corners */
+            background-color: #f8f9fa; 
+            font-size : 20px/* Light background color */
+        }
+    </style>
+    <title>User Profile</title>
+
+
+<div class="container mt-5">
+    <h3>Account Details</h3>
+    <div class="profile-photo">
+        {% if user.photo %}
+            <img src="{{ user.photo.url }}" alt="Profile Photo" class="rounded-circle" style="width: 150px; height: 150px;"/>
+        {% else %}
+            <p>No photo uploaded.</p>
+        {% endif %}
+    </div>
+
+    <div class="account-details">
+        <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+        <p><strong>Date of Birth:</strong> {{ user.date_of_birth }}</p>
+        <p><strong>Address:</strong> {{ user.address }}</p>
+        <p><strong>Account Created:</strong> {{ user.account_creation_date }}</p>
+        <p><strong>Last Updated:</strong> {{ user.last_updated }}</p>
+    </div>
+    <div class="text-center mt-4">
+        <a href="{% url 'profile' %}" class="btn btn-warning" style = "font-size:20px">Edit Profile</a>
+    </div>
+</div>
+
+{% endblock %}

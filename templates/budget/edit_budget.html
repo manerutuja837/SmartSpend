@@ -1,0 +1,636 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body{
+        background-color:rgb(36, 0, 73);
+        color: rgb(255, 255, 255);
+    }
+    
+    td input[type="checkbox"] {
+        display: none;
+    }
+    
+    #bar-chart, #left-to-spend-chart, #left-to-budget-chart {
+        width: 22% !important;
+        height: 49% !important;
+      }
+    
+    
+    #bar-chart{
+        position:absolute;
+        top: 29%;
+        left: 30.5%;
+    }
+    
+    #left-to-budget-chart{
+        position:absolute;
+        top: 29%;
+        left: 77%;
+    }
+    #left-to-spend-chart{
+        position:absolute;
+        top: 29%;
+        left: 53.5%;
+    }
+    
+    .card{
+        background-color: rgb(36, 0, 73);
+        color: rgba(245, 245, 245, 0.873);
+        border-radius: 20px;
+        padding:0.5%;
+        margin-top: 2%;
+        margin-left: 0.5%;
+        border:none;
+    }
+    
+    .paycheck{
+        height:21%;
+        width:28%;
+    }
+    
+    .income,.saving,.bills,.expense,.loan{
+        width:28%;
+        height:auto;
+    }
+    
+    .expense{
+        position: absolute;
+        left: 33%;
+        top: 80%;
+    }
+    .loan{
+        position: absolute;
+        left: 65%;
+        top: 80%;
+    }
+    
+    .bl{
+        font-size: 22px;
+        text-align: center;
+        display: block;
+        width:80%;
+        float:left;
+        padding-left: 11%;
+    } 
+    #add-incomes, #add-savings, #add-bills, #add-expenses, #add-loans{
+        float: right;
+        background-color: inherit;
+        border: none;
+        color: whitesmoke;
+        font-size: 21px;
+    }
+    
+    .income input,.saving input,.bills input,.expense input,.loan input{
+        width: 102%;
+        height: 30px;
+        border: none;
+        padding-left: 5%;
+        text-align: center;
+        background-color: #ba17c761;
+        border-radius: 10px;
+        margin-left: 1.5%;
+        color: whitesmoke;
+        font-size: 18px;
+    }
+    
+    input:focus, input:active {
+        background-color: #ba17c761;
+        color: whitesmoke; /* Ensures the color does not change on focus or typing */
+    }
+    
+    .remove-form {
+        margin-left: auto;
+        background: #ff000063;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    
+    tbody, tr, td{
+        color: whitesmoke;
+        font-size: 20px;
+    }
+    
+    .paycheck b{
+        width: 81%;
+    }
+    .paycheck label{
+        font-size: 19px;
+        font-weight: bold;
+        margin:1%;
+    }
+    .paycheck input{
+        border:none;
+        height: 19%;
+        margin: 3%;
+        text-align: center;
+        width: 40%;
+        background-color: inherit;
+        color: whitesmoke;
+        font-size: 17px;
+    }
+    
+    .paycheck input::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+</style>
+
+<title>Edit Budget</title>
+    <style>
+        td input[type="checkbox"] {
+            display: none;
+        }
+        #bar-chart, #left-to-spend-chart, #left-to-budget-chart {
+            width: 330px !important;
+            height: 330px !important;
+            float:right;
+          }
+    </style>
+
+    <h1>Edit Budget</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div>
+
+            <canvas id="bar-chart"  style="float:left;"></canvas>
+            <canvas id="left-to-spend-chart"  style="float:inherit;"></canvas>
+            <canvas id="left-to-budget-chart"  style="float:inherit;"></canvas>
+            
+            </div>
+
+        <!-- Paycheck Period Form -->
+        <fieldset>
+            <legend>Paycheck Period</legend>
+            {{ paycheck_form.as_p }}
+        </fieldset>
+        
+        <!-- Income Formset -->
+        <fieldset>
+            <legend>Income</legend>
+            {{ income_formset.management_form }}
+            <div id="income-formset" data-prefix="income">
+                <input type="hidden" name="incomes-TOTAL_FORMS" id="id_incomes-TOTAL_FORMS" value="1">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in income_formset %}
+                    <div>
+                        <tr class="form-row">
+                            {% for field in form.visible_fields %}
+                                <th style="display:none;">{{field.label_tag}}</th>
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                          
+                                <td  style="display:none;"><input type="hidden" name="{{ form.prefix }}-DELETE" class="form-delete"/></td>
+                            
+                            <td>{{form.id}}</td>
+                            <td>{{ form.paycheck_period }}</td>
+                            <td><button type="button" class="remove-form">x</button></td>
+                        </tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+            <button type="button" id="add-income">+</button>
+        </fieldset>
+
+        <!-- Savings Formset -->
+        <fieldset>
+            <legend>Savings</legend>
+            {{ savings_formset.management_form }}
+            <div id="savings-formset" data-prefix="saving">
+                <input type="hidden" name="savings-TOTAL_FORMS" id="id_savings-TOTAL_FORMS" value="1">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in savings_formset %}
+                    <div>
+                        <tr  class="form-row">
+                            {% for field in form.visible_fields %}
+                                <th style="display:none;">{{field.label_tag}}</th>
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                            
+                        <td><input type="hidden" name="{{ form.prefix }}-DELETE" class="form-delete" /></td>
+                    
+                            <td>{{form.id}}</td>
+                            <td><button type="button" class="remove-form">x</button></td>
+                        </tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+            <button type="button" id="add-savings">+</button>
+        </fieldset>
+
+        <!-- Bill Formset -->
+        <fieldset>
+            <legend>Bill</legend>
+            <div id="bill-formset" data-prefix="bills">
+                <input type="hidden" name="bill-TOTAL_FORMS" id="id_bill-TOTAL_FORMS" value="1">
+            {{ bill_formset.management_form }}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in bill_formset %}
+                    <div>
+                        <tr class="form-row">
+                            {% for field in form.visible_fields %}
+                                <th style="display:none;">{{field.label_tag}}</th>
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                            
+                        <td><input type="hidden" name="{{ form.prefix }}-DELETE" class="form-delete" /></td>
+                   
+                            <td>{{form.id}}</td>
+                            <td><button type="button" class="remove-form">x</button></td>
+                        </tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+            <button type="button" id="add-bills">+</button>
+        </fieldset>
+
+        <!-- Daily Expense Formset -->
+        <fieldset>
+            <legend>Daily Expense</legend>
+            <div id="daily-expense-formset" data-prefix="expenses">
+                <input type="hidden" name="expense-TOTAL_FORMS" id="id_expense-TOTAL_FORMS" value="1">
+            {{ daily_expense_formset.management_form }}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in daily_expense_formset %}
+                    <div class="form-row">
+                        <tr class="form-row">
+                            {% for field in form.visible_fields %}
+                                <th style="display:none;">{{field.label_tag}}</th>
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                           
+                        <td><input type="hidden" name="{{ form.prefix }}-DELETE" class="form-delete" /></td>
+                    
+                            <td>{{form.id}}</td>
+                            <td><button type="button" class="remove-form">x</button></td>
+                        </tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+            <button type="button" id="add-expenses">+</button>
+        </fieldset>
+
+        <!-- Loan Formset -->
+        <fieldset>
+            <legend>Loan</legend>
+            <div id="loan-formset" data-prefix="loans">
+                <input type="hidden" name="loan-TOTAL_FORMS" id="id_loan-TOTAL_FORMS" value="1">
+            {{ loan_formset.management_form }}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in loan_formset %}
+                    <div>
+                        <tr class="form-row">
+                            {% for field in form.visible_fields %}
+                                <th style="display:none;">{{field.label_tag}}</th>
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                            
+                        <td><input type="hidden" name="{{ form.prefix }}-DELETE" class="form-delete" /></td>
+                 
+                            <td>{{form.id}}</td>
+                            <td><button type="button" class="remove-form">x</button></td>
+                        </tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+            <button type="button" id="add-loans">+</button>
+        </fieldset>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <!-- Button to cancel and return to view -->
+    <a href="{% url 'view_budget' %}" class="btn btn-secondary">Cancel</a>
+
+    <!-- JavaScript for dynamically adding new forms -->
+
+    <script type="empty/form-template" id="empty-income-form">
+        <tr class="form-row">
+            <th style="display:none;"><label for="id_income-0-source">Source:</label></th>
+            <td><input type="text" name="income-__prefix__-source" id="id_income-__prefix__-source" ></td>
+    
+            <th style="display:none;"><label for="id_income-0-amount">Amount:</label></th>
+            <td><input type="number" name="income-__prefix__-amount" id="id_income-__prefix__-amount" ></td>
+            
+            <td><input type="hidden" name="income-__prefix__-DELETE" class="form-delete" /></td>
+    
+            <td><button type="button" class="remove-form">x</button></td>
+        </tr>
+    </script>
+
+    <script type="empty/form-template" id="empty-savings-form">
+        <tr class="form-row">
+        <th style="display:none;"><label for="id_saving-0-purpose">Purpose:</label></th>
+        <td><input type="text" name="saving-__prefix__-purpose" id="id_saving-__prefix__-purpose"></td>
+        
+        <th style="display:none;"><label for="id_saving-0-amount">Amount:</label></th>
+        <td><input type="number" name="saving-__prefix__-amount" id="id_saving-__prefix__-amount"></td>
+           
+        <td><input type="hidden" name="saving-__prefix__-DELETE" class="form-delete" /></td>
+    
+        <td><button type="button" class="remove-form">x</button></td>
+    </tr>
+    </script>
+
+    <script type="empty/form-template" id="empty-bill-form">
+        <tr class="form-row">
+        <th style="display:none;"><label for="id_bills-0-description">Description:</label></th>
+        <td><input type="text" name="bills-__prefix__-description"  id="id_bills-__prefix__-description"></td>
+        
+        <th style="display:none;"><label for="id_bills-0-amount">Amount:</label></th>
+        <td><input type="number" name="bills-__prefix__-amount"  id="id_bills-__prefix__-amount"></td>
+        
+        <td><input type="hidden" name="bills-__prefix__-DELETE" class="form-delete" /></td>
+        
+        <td><button type="button" class="remove-form">Remove</button></td>
+    </tr></script>
+
+<script type="empty/form-template" id="empty-expense-form">
+    <tr class="form-row">
+    <th style="display:none;"><label for="id_expenses-0-description">Description:</label></th>
+    <td><input type="text" name="expenses-__prefix__-description" id="id_expenses-__prefix__-description"></td>
+    
+    <th style="display:none;"><label for="id_expenses-0-amount">Amount:</label></th>
+    <td><input type="number" name="expenses-__prefix__-amount" id="id_expenses-__prefix__-amount"></td>
+    
+    <td><input type="hidden" name="expenses-__prefix__-DELETE" class="form-delete" /></td>
+  
+    <td><button type="button" class="remove-form">x</button></td>
+</tr>
+</script>
+
+<script type="empty/form-template" id="empty-loan-form">
+    <tr class="form-row">
+    <th style="display:none;"><label for="id_loans-0-description">Description:</label></th>
+    <td><input type="text" name="loans-__prefix__-description" id="id_loans-__prefix__-description"></td>
+    
+    <th style="display:none;"><label for="id_loans-0-amount">Amount:</label></th>
+    <td><input type="number" name="loans-__prefix__-amount" id="id_loans-__prefix__-amount"></td>
+
+    <td><input type="hidden" name="loans-__prefix__-DELETE" class="form-delete" /></td>
+
+    <td><button type="button" class="remove-form">x</button></td>
+</tr>
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        function updateChart() {
+            let incomeTotal = 0, savingsTotal = 0, billsTotal = 0, expensesTotal = 0, loansTotal = 0;
+    
+            // Calculate totals for each section
+            document.querySelectorAll('#income-formset input[type="number"]').forEach(input => {
+                incomeTotal += parseFloat(input.value) || 0;
+            });
+            document.querySelectorAll('#savings-formset input[type="number"]').forEach(input => {
+                savingsTotal += parseFloat(input.value) || 0;
+            });
+            document.querySelectorAll('#bill-formset input[type="number"]').forEach(input => {
+                billsTotal += parseFloat(input.value) || 0;
+            });
+            document.querySelectorAll('#daily-expense-formset input[type="number"]').forEach(input => {
+                expensesTotal += parseFloat(input.value) || 0;
+            });
+            document.querySelectorAll('#loan-formset input[type="number"]').forEach(input => {
+                loansTotal += parseFloat(input.value) || 0;
+            });
+    
+            // Update bar chart data
+            barChart.data.datasets[0].data = [incomeTotal, savingsTotal, billsTotal, expensesTotal, loansTotal];
+            barChart.update();
+    
+            // Calculate and update doughnut charts for Left to Spend and Left to Budget
+            const spentTotal = billsTotal + expensesTotal + loansTotal;
+            const leftToSpend = incomeTotal - spentTotal;
+            const leftToBudget = incomeTotal - (savingsTotal + spentTotal);
+    
+            leftToSpendChart.data.datasets[0].data = [leftToSpend, spentTotal];
+            leftToSpendChart.update();
+    
+            leftToBudgetChart.data.datasets[0].data = [leftToBudget, savingsTotal + spentTotal];
+            leftToBudgetChart.update();
+        }
+    
+        // Function to handle form removal
+        function handleRemoveForm(event) {
+            const formRow = this.closest('tr.form-row');
+            const formsetTable = formRow.closest('div');
+            const formsetPrefix = formsetTable.dataset.prefix;
+            console.log(formsetPrefix);
+            console.log(formsetTable);
+
+            const deleteInput = formRow.querySelector('input[name$="-DELETE"]');
+            console.log(deleteInput);
+
+
+            if (deleteInput) {
+                deleteInput.value = 'on';
+               // formRow.style.display = 'none'; 
+                formRow.remove(); // Hide the form row but keep it in the DOM for Django's deletion processing
+            } else {
+                formRow.remove();  // Remove if DELETE field is not available
+            }
+
+            renumberForms(formsetTable, formsetPrefix);
+    
+            updateChart();
+
+    
+            // Update TOTAL_FORMS value
+            const totalFormsInput = document.getElementById(`id_${formsetPrefix}-TOTAL_FORMS`);
+            console.log(totalFormsInput);
+            console.log(totalFormsInput.value);
+            if (totalFormsInput) {
+                totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+            } else {
+                console.error(`TOTAL_FORMS input not found for formset: ${formsetPrefix}`);
+            }
+
+        }
+
+        function renumberForms(formsetTable, formsetPrefix) {
+            // Get all visible form rows within the formset table
+            const formRows = formsetTable.querySelectorAll('tr.form-row:not([style*="display: none"])');
+            
+            // Loop through each row and update its prefix based on its index
+            formRows.forEach((row, index) => {
+                row.querySelectorAll('input, select, textarea').forEach((input) => {
+                    const name = input.getAttribute('name');
+                    const id = input.getAttribute('id');
+                    if (name && id) {
+                        const newName = name.replace(new RegExp(`${formsetPrefix}-\\d+-`), `${formsetPrefix}-${index}-`);
+                        const newId = id.replace(new RegExp(`id_${formsetPrefix}-\\d+-`), `id_${formsetPrefix}-${index}-`);
+                        input.setAttribute('name', newName);
+                        input.setAttribute('id', newId);
+                    }
+                });
+            });
+        }
+    
+        // Function to attach remove form event listeners
+        function attachRemoveFormListeners() {
+            document.querySelectorAll('.remove-form').forEach(button => {
+                button.removeEventListener('click', handleRemoveForm);  // Prevent duplicate listeners
+                button.addEventListener('click', handleRemoveForm);
+            });
+        }
+    
+    
+        // Function to attach event listeners for input fields
+        function addInputListeners() {
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.removeEventListener('input', updateChart);  // Avoid duplicate listeners
+                input.addEventListener('input', updateChart);
+            });
+        }
+        document.getElementById('add-income').addEventListener('click', function () {
+            var formIdx = parseInt(document.getElementById('id_income-TOTAL_FORMS').value);
+            var template = document.querySelector('#empty-income-form').innerHTML.replace(/__prefix__/g, formIdx);
+            document.querySelector('#income-formset tbody').insertAdjacentHTML('beforeend', template);
+            document.getElementById('id_income-TOTAL_FORMS').value = formIdx + 1;
+            //addInputListeners();
+            addInputListeners();
+            attachRemoveFormListeners();
+
+        });
+    
+        // Function to dynamically add Savings fields
+        document.getElementById('add-savings').addEventListener('click', function () {
+            var formIdx = parseInt(document.getElementById('id_saving-TOTAL_FORMS').value);
+            var template = document.querySelector('#empty-savings-form').innerHTML.replace(/__prefix__/g, formIdx);
+            document.querySelector('#savings-formset tbody').insertAdjacentHTML('beforeend', template);
+            document.getElementById('id_saving-TOTAL_FORMS').value = formIdx + 1;
+            //addInputListeners();
+            addInputListeners();
+        attachRemoveFormListeners();
+        });
+    
+        // Function to dynamically add Bill fields
+        document.getElementById('add-bills').addEventListener('click', function () {
+            var formIdx = parseInt(document.getElementById('id_bills-TOTAL_FORMS').value);
+            var template = document.querySelector('#empty-bill-form').innerHTML.replace(/__prefix__/g, formIdx);
+            document.querySelector('#bill-formset tbody').insertAdjacentHTML('beforeend', template);
+            document.getElementById('id_bills-TOTAL_FORMS').value = formIdx + 1;
+            //addInputListeners();
+            addInputListeners();
+        attachRemoveFormListeners();
+        });
+    
+        // Function to dynamically add Daily Expense fields
+        document.getElementById('add-expenses').addEventListener('click', function () {
+            var formIdx = parseInt(document.getElementById('id_expenses-TOTAL_FORMS').value);
+            var template = document.querySelector('#empty-expense-form').innerHTML.replace(/__prefix__/g, formIdx);
+            document.querySelector('#daily-expense-formset tbody').insertAdjacentHTML('beforeend', template);
+            document.getElementById('id_expenses-TOTAL_FORMS').value = formIdx + 1;
+            //addInputListeners();
+            addInputListeners();
+        attachRemoveFormListeners();
+        });
+    
+        // Function to dynamically add Loan fields
+        document.getElementById('add-loans').addEventListener('click', function () {
+            var formIdx = parseInt(document.getElementById('id_loans-TOTAL_FORMS').value);
+            var template = document.querySelector('#empty-loan-form').innerHTML.replace(/__prefix__/g, formIdx);
+            document.querySelector('#loan-formset tbody').insertAdjacentHTML('beforeend', template);
+            document.getElementById('id_loans-TOTAL_FORMS').value = formIdx + 1;
+            //addInputListeners();
+            addInputListeners();
+        attachRemoveFormListeners();
+        });
+
+        const ctxBarChart = document.getElementById('bar-chart').getContext('2d');
+        const ctxLeftToSpend = document.getElementById('left-to-spend-chart').getContext('2d');
+        const ctxLeftToBudget = document.getElementById('left-to-budget-chart').getContext('2d');
+    
+        const barChart = new Chart(ctxBarChart, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Savings', 'Bills', 'Expenses', 'Loans'],
+                datasets: [{
+                    label: 'Financial Breakdown',
+                    data: [{{ incomes_sum }}, {{ savings_sum }}, {{ bills_sum }}, {{ daily_expenses_sum }}, {{ loans_sum }}],
+                    backgroundColor: ['#36a2eb', '#ff6384', '#ffcd56', '#4bc0c0', '#9966ff'],
+                }]
+            },
+        });
+    
+        const leftToSpendChart = new Chart(ctxLeftToSpend, {
+            type: 'doughnut',
+            data: {
+                labels: ['Left to Spend', 'Spent'],
+                datasets: [{
+                    data: [{{ left_to_spend }}, {{ spent_amount }}],
+                    backgroundColor: ['#4bc0c0', '#ff6384'],
+                }]
+            },
+        });
+    
+        const leftToBudgetChart = new Chart(ctxLeftToBudget, {
+            type: 'doughnut',
+            data: {
+                labels: ['Left to Budget', 'Budgeted'],
+                datasets: [{
+                    data: [{{ left_to_budget }}, {{ budgeted_amount }}],
+                    backgroundColor: ['#36a2eb', '#9966ff'],
+                }]
+            },
+        });
+    
+        // Attach initial listeners for existing fields
+        addInputListeners();
+        attachRemoveFormListeners();
+    });
+</script>
+
+
+    {% endblock %}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% include 'partials/_messages.html' %}
+<link href="{% static 'css/popup.css' %}" rel="stylesheet">
+<div class="container mt-6" style="margin-top: 100px ; "> <!-- Added margin-top -->
+  
+  <div>
+    <h3 style="font-size: 1.7rem;">Current Balance</h3>
+    <h4 style="font-size: 1.7rem;">{{bank_account.current_balance}}</h4>
+  </div>
+
+  <div class="row">
+    <div class="col-md-10">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb" style="
+                                          background-color: #dddddd;
+                                          padding-left:1.5%;
+                                          margin-top:2%; 
+                                          padding-top:1%;
+                                          padding: .75rem 1.5rem;
+                                          font-size: 1rem;">
+          <li class="breadcrumb-item"><a href="" style="text-decoration:none; font-size: 1rem;">Expenses</a></li>
+          <li class="breadcrumb-item active" aria-current="page" style="font-size: 1rem;">My Expenses</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="col-md-2" style="margin-top:1.7%;">
+      <a href="{% url 'add_expenses' %}" class="btn btn-primary" style="height: 45px; width: 90%; font-size: 1rem; padding-top: 5%;">Add Expenses</a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-md-8">
+        <a href="#" class="btn btn-primary" id="open-popup" style="font-size: 1rem; padding: 10px;">Import Expenses</a>
+      </div>
+
+      <div id="popup" class="popup">
+        <div class="popup-card" style="width: 500px; padding: 20px; font-size: 1rem;">
+          <button class="btn-close" id="close-popup"></button>
+            <h3>Upload the Xml file for processing...</h3>
+            <form method="POST" action="{% url 'import_sms' %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                <input type="file" name="xml_file" accept=".xml" class="form-control" style="margin-top:4%; font-size: 1.2rem;" required>
+              </div><br>
+              <input type="submit" class="btn btn-primary" value="Upload and Process" style="font-size: 1.2rem;" />
+            </form>
+        </div>
+      </div>
+
+    {% if expenses.count %}
+      <div class="col-md-4">
+        <div class="form-group">
+          <input class="form-control" placeholder="Search" id="SearchField" style="font-size: 1rem; padding: 10px; width: 100%;" />
+        </div>
+      </div>
+    </div>
+
+    <div class="app-table" style="margin-top: 2%;">
+      <table class="table table-striped table-hover" style="font-size: 1rem;">
+        <thead>
+          <tr>
+            <th>Amount ({{currency}})</th>
+            <th>Source</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in page_obj %}
+            {% if expense.transaction_type == 'debit' %}
+            <tr>
+              <td>{{expense.amount}}</td>
+              <td>{{expense.payment_type}}</td>
+              <td>{{expense.category}}</td>
+              <td>{{expense.description}}</td>
+              <td>{{expense.timestamp|date:"F d, Y" }}</td>
+              <td><a href="{% url 'edit_expense' expense.id %}" class="btn btn-secondary btn-sm" style="font-size: 15px;">Edit</a></td>
+            </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-output">
+      <table class="table table-striped table-hover" style="font-size: 1rem;">
+        <thead>
+          <tr>
+            <th>Amount ({{currency}})</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody class="table-body">
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container">
+    <div class="pagination-info" style="font-size: 1rem; margin-bottom: 1rem;">
+      Showing page {{page_obj.number}} of {{page_obj.paginator.num_pages}}
+    </div>
+
+    <ul class="pagination justify-content-end mr-auto">
+      {% if page_obj.has_previous %}
+      <li {% if page_obj.number == 1 %} class="page-item active" {% endif %}><a class="page-link" href="?page=1" style="font-size: 1.2rem;">&laquo; 1</a></li>
+      <li class="page-item"> <a class="page-link" href="?page={{ page_obj.previous_page_number }}" style="font-size: 1.2rem;">Previous</a></li>
+      {% endif %}
+
+      {% if page_obj.has_next %}
+      <li class="page-item"> <a class="page-link" href="?page={{ page_obj.next_page_number }}" style="font-size: 1.2rem;">Next</a></li>
+      <li class="page-item"> <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" style="font-size: 1.2rem;">{{ page_obj.paginator.num_pages}} &raquo;</a></li>
+      {% endif %}
+
+    </ul>
+
+    {% endif %}
+  </div>
+  </div>
+
+</div>
+<script src="{% static 'js/popup.js' %}"></script>
+<script src="{% static 'js/searchExpenses.js' %}"></script>
+
+{% endblock %}
